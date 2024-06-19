@@ -1,0 +1,86 @@
+#include <stdio.h>
+
+#define MAX_VERTICES 100
+
+int adjMatrix[MAX_VERTICES][MAX_VERTICES];
+int inDegree[MAX_VERTICES];
+int queue[MAX_VERTICES];
+int front = 0, rear = -1;
+
+void addEdge(int from, int to) {
+    adjMatrix[from][to] = 1;
+    inDegree[to]++;
+}
+
+void enqueue(int vertex) {
+    if (rear == MAX_VERTICES - 1)
+        printf("Queue Overflow\n");
+    else {
+        rear++;
+        queue[rear] = vertex;
+    }
+}
+
+int dequeue() {
+    if (front > rear) {
+        printf("Queue Underflow\n");
+        return -1;
+    } else {
+        int item = queue[front];
+        front++;
+        return item;
+    }
+}
+
+void topologicalSort(int vertices) {
+    int i, vertex, count = 0;
+
+    for (i = 0; i < vertices; i++) {
+        if (inDegree[i] == 0)
+            enqueue(i);
+    }
+
+    printf("Topological Order: ");
+    while (front <= rear) {
+        vertex = dequeue();
+        printf("%d ", vertex);
+        count++;
+
+        for (i = 0; i < vertices; i++) {
+            if (adjMatrix[vertex][i] == 1) {
+                inDegree[i]--;
+                if (inDegree[i] == 0)
+                    enqueue(i);
+            }
+        }
+    }
+
+    if (count != vertices)
+        printf("\nGraph has a cycle\n");
+}
+
+int main() {
+    int vertices, edges, i, from, to;
+
+    printf("Enter the number of vertices: ");
+    scanf("%d", &vertices);
+    printf("Enter the number of edges: ");
+    scanf("%d", &edges);
+
+    for (i = 0; i < vertices; i++) {
+        inDegree[i] = 0;
+        for (int j = 0; j < vertices; j++) {
+            adjMatrix[i][j] = 0;
+        }
+    }
+
+    printf("Enter the edges (from -> to):\n");
+    for (i = 0; i < edges; i++) {
+        scanf("%d %d", &from, &to);
+        addEdge(from, to);
+    }
+
+    topologicalSort(vertices);
+
+    return 0;
+}
